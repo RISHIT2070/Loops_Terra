@@ -13,13 +13,7 @@ provider "aws" {
   secret_key = var.secret_key
 }
 
-# Example: Creating AWS S3 Buckets using a loop
-variable "bucket_count" {
-  description = "Number of S3 buckets to create"
-  type        = number
-  default     = 2  # Default to creating 2 buckets, change as needed
-}
-
+# Example: Environment-based resource counts
 variable "region" {
   description = "AWS region"
   type        = string
@@ -35,19 +29,19 @@ variable "secret_key" {
   type        = string
 }
 
-variable "bucket_names" {
-  description = "List of S3 bucket names"
-  type        = list(string)
-  default     = ["example-bucket-1", "example-bucket-2"]  # Default bucket names, change as needed
+variable "environment" {
+  description = "Environment type (dev or prod)"
+  type        = string
+  default     = "dev"  # Default to dev environment
 }
 
 resource "aws_s3_bucket" "example" {
-  count = var.bucket_count
+  count = var.environment == "dev" ? 2 : 4  # Adjust counts based on environment
 
-  bucket = var.bucket_names[count.index]
+  bucket = "${var.environment}-example-bucket-${count.index + 1}"
 
   tags = {
-    Name = var.bucket_names[count.index]
-    Environment = var.TF_VAR_environment  # Corrected variable reference
+    Name        = "${var.environment}-example-bucket-${count.index + 1}"
+    Environment = var.environment
   }
 }
